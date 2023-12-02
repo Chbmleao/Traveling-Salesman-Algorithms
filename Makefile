@@ -1,21 +1,22 @@
 CXX = g++
 CXXFLAGS = -std=c++11 -Wall
 SRC = tp2.cpp Graph.cpp
-OBJ = $(SRC:.cpp=.o)
-EXECUTABLE = tp2
+OBJ = $(addprefix bin/,$(SRC:.cpp=.o))
+EXECUTABLE = bin/tp2
+TIMEOUT = 1800
 
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJ)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
-%.o: %.cpp
+bin/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 .PHONY: clean run
 
 clean:
-	rm -f $(OBJ) $(EXECUTABLE)
+	rm -rf bin $(EXECUTABLE)
 
 run: $(EXECUTABLE)
-	./$(EXECUTABLE)
+	timeout $(TIMEOUT) ./$(EXECUTABLE)
