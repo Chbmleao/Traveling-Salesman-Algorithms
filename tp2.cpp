@@ -2,13 +2,18 @@
 #include <vector>
 #include <algorithm>
 #include <queue>
+#include <fstream>
+#include <string>
+#include <tuple>
+#include <cmath>
 #include "Graph.hpp"
+using namespace std; 
 
-std::pair<std::vector<int>, double> branchBoundTravelingSalesman(Graph *graph) {
+pair<vector<int>, double> branchBoundTravelingSalesman(Graph *graph) {
   graph->computeMinPath();
 
   Node root(graph);
-  std::priority_queue<Node, std::vector<Node>, std::greater<Node>> queue;
+  priority_queue<Node, vector<Node>, greater<Node>> queue;
   queue.push(root);
 
   auto [solution, best] = graph->getOnePath();
@@ -26,10 +31,10 @@ std::pair<std::vector<int>, double> branchBoundTravelingSalesman(Graph *graph) {
       }
     } else if (node.bound < best) {
       if (node.level <= numVertices) {
-        std::vector<int> unvisited = graph->getUnvisitedVertices(node.path);
+        vector<int> unvisited = graph->getUnvisitedVertices(node.path);
         for (int k : unvisited) {
           Node newNode(graph, &node, k);
-          if (newNode.bound < best && graph->getWeight(node.path.back(), k) != std::numeric_limits<double>::infinity()) {
+          if (newNode.bound < best && graph->getWeight(node.path.back(), k) != numeric_limits<double>::infinity()) {
             queue.push(newNode);
           }
         }
@@ -40,8 +45,56 @@ std::pair<std::vector<int>, double> branchBoundTravelingSalesman(Graph *graph) {
   return {solution, best};
 }
 
+
+vector<tuple<int, double, double>> readCoordinatesFromFile(string filename) {
+  ifstream file(filename);
+
+  vector<tuple<int, double, double>> coordinates;
+
+  string line;
+  while (getline(file, line)) {
+    if (line.find("NODE_COORD_SECTION") != string::npos) {
+      break;
+    }
+  }
+
+  int id;
+  double x, y;
+  while (file >> id >> x >> y) {
+    coordinates.emplace_back(id-1, x, y);
+  }
+
+  file.close();
+
+  return coordinates;
+}
+
+double calculateEuclideanDistance(tuple<int, double, double> point1, tuple<int, double, double> point2) {
+  double x1 = get<1>(point1);
+  double y1 = get<2>(point1);
+  double x2 = get<1>(point2);
+  double y2 = get<2>(point2);
+
+  return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+}
+
+Graph* getGraphFromFile(string filename) {
+  vector<tuple<int, double, double>> coordinates = readCoordinatesFromFile(filename);
+
+  int numPoints = coordinates.size();
+  Graph *graph = new Graph(numPoints);
+  
+  for (int i = 0; i < numPoints; ++i) {
+    for (int j = i + 1; j < numPoints; ++j) {
+      double distance = calculateEuclideanDistance(coordinates[i], coordinates[j]);
+      graph->addEdge(get<0>(coordinates[i]), get<0>(coordinates[j]), distance);
+    }
+  }
+  return graph;
+}
+
 void test1() {
-  std::cout << "----------- TEST 1 -----------" << std::endl;
+  cout << "----------- TEST 1 -----------" << endl;
   Graph *g = new Graph(5);
   g->addEdge(0, 1, 3);
   g->addEdge(0, 2, 1);
@@ -56,28 +109,37 @@ void test1() {
 
   g->printGraph();
 
-  std::pair<std::vector<int>, double> solution = branchBoundTravelingSalesman(g);
-  std::cout << "Solution: " << solution.second << std::endl << std::endl;
+  pair<vector<int>, double> solution = branchBoundTravelingSalesman(g);
+  cout << "Solution: " << solution.second << endl << endl;
 }
 
 void test2() {
-  std::cout << "----------- TEST 2 -----------" << std::endl;
+  cout << "----------- TEST 2 -----------" << endl;
   Graph *g = new Graph(4);
-  g->adjMatrix = std::vector<std::vector<double>>({
+  g->adjMatrix = vector<vector<double>>({
       {0, 10, 15, 20},
       {10, 0, 35, 25},
       {15, 35, 0, 30},
       {20, 25, 30, 0}});
-  
+
+  pair<vector<int>, double> solution = branchBoundTravelingSalesman(g);
+  cout << "Solution: " << solution.second << endl << endl;
+}
+
+void test3() {
+  cout << "----------- TEST 3 -----------" << endl;
+  Graph *g = getGraphFromFile("data/berlin52.tsp");
+
   g->printGraph();
 
-  std::pair<std::vector<int>, double> solution = branchBoundTravelingSalesman(g);
-  std::cout << "Solution: " << solution.second << std::endl << std::endl;
+  pair<vector<int>, double> solution = branchBoundTravelingSalesman(g);
+  cout << "Solution: " << solution.second << endl << endl;
 }
 
 int main() {
   test1();  
   test2();
 
+  test3();
   return 0;
 }
