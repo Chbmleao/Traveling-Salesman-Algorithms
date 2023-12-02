@@ -6,6 +6,7 @@
 #include <string>
 #include <tuple>
 #include <cmath>
+#include <chrono>
 #include "Graph.hpp"
 using namespace std; 
 
@@ -126,20 +127,24 @@ void test2() {
   cout << "Solution: " << solution.second << endl << endl;
 }
 
-void test3() {
-  cout << "----------- TEST 3 -----------" << endl;
-  Graph *g = getGraphFromFile("data/berlin52.tsp");
+void test(string filename) {
+  cout << "----------- TEST " << filename << " -----------" << endl;
+  Graph *g = getGraphFromFile(filename);
 
-  g->printGraph();
-
+  auto start = chrono::high_resolution_clock::now();
   pair<vector<int>, double> solution = branchBoundTravelingSalesman(g);
+  auto end = chrono::high_resolution_clock::now();
+  auto duration = chrono::duration_cast<chrono::seconds>(end - start);
+
   cout << "Solution: " << solution.second << endl << endl;
+  cout << "Time taken by function: " << duration.count() << " seconds" << endl << endl;
 }
 
 int main() {
   test1();  
   test2();
-
-  test3();
+  
+  // test("data/berlin52.tsp");
+  test("data/ulysses22.tsp");
   return 0;
 }
