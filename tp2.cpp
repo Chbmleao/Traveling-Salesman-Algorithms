@@ -10,7 +10,7 @@
 #include "Graph.hpp"
 using namespace std; 
 
-pair<vector<int>, double> branchBoundTravelingSalesman(Graph *graph) {
+pair<vector<int>, double> branchAndBoundTSP(Graph *graph) {
   graph->computeMinPath();
 
   Node root(graph);
@@ -42,6 +42,17 @@ pair<vector<int>, double> branchBoundTravelingSalesman(Graph *graph) {
       }
     }
   }
+
+  return {solution, best};
+}
+
+pair<vector<int>, double> twiceAroundTreeTSP(Graph *graph) {
+  graph->computeMinPath();
+
+  auto [solution, best] = graph->getOnePath();
+  int numVertices = graph->getNumVertices();
+
+  int root = 0;
 
   return {solution, best};
 }
@@ -110,7 +121,7 @@ void test1() {
 
   g->printGraph();
 
-  pair<vector<int>, double> solution = branchBoundTravelingSalesman(g);
+  pair<vector<int>, double> solution = branchAndBoundTSP(g);
   cout << "Solution: " << solution.second << endl << endl;
 }
 
@@ -123,7 +134,7 @@ void test2() {
       {15, 35, 0, 30},
       {20, 25, 30, 0}});
 
-  pair<vector<int>, double> solution = branchBoundTravelingSalesman(g);
+  pair<vector<int>, double> solution = branchAndBoundTSP(g);
   cout << "Solution: " << solution.second << endl << endl;
 }
 
@@ -132,7 +143,7 @@ void test(string filename) {
   Graph *g = getGraphFromFile(filename);
 
   auto start = chrono::high_resolution_clock::now();
-  pair<vector<int>, double> solution = branchBoundTravelingSalesman(g);
+  pair<vector<int>, double> solution = branchAndBoundTSP(g);
   auto end = chrono::high_resolution_clock::now();
   auto duration = chrono::duration_cast<chrono::seconds>(end - start);
 
@@ -144,7 +155,7 @@ int main() {
   test1();  
   test2();
   
-  // test("data/berlin52.tsp");
-  test("data/ulysses22.tsp");
+  test("data/berlin52.tsp");
+  // test("data/ulysses22.tsp");
   return 0;
 }

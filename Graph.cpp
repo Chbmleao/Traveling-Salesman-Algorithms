@@ -45,7 +45,6 @@ int Graph::getNumVertices() {
 }
 
 void Graph::printGraph() {
-  std::cout << "num vertices " << numVertices << std::endl;
   for (int i = 0; i < numVertices; ++i) {
     for (int j = 0; j < numVertices; ++j) {
       std::cout << adjMatrix[i][j] << " ";
