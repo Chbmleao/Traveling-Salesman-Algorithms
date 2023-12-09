@@ -1,0 +1,1 @@
+---------- Dataset: ./data/pa561.tsp - Number of vertices: 0 ----------
