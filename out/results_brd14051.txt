@@ -1,1 +1,0 @@
----------- Dataset: data/brd14051.tsp - Number of vertices: 14051 ----------

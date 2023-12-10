@@ -1,1 +1,0 @@
----------- Dataset: data/rl11849.tsp - Number of vertices: 11849 ----------
